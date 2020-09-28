@@ -1,0 +1,51 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+    - targets: ['localhost:9090']
+
+  - job_name: 'bbb'
+    relabel_configs:
+    - source_labels: ['__address__']
+      separator:     ':'
+      regex:         '(.*):.*'
+      target_label:  'instance'
+      replacement:   '$1'
+    static_configs:
+    - targets: ['bbb1.polytechnic.bh:9688', 'bbb2.polytechnic.bh:9688', 'bbb3.polytechnic.bh:9688', 'bbb4.polytechnic.bh:9688','bbb5.polytechnic.bh:9688', 'bbb6.polytechnic.bh:9688']
+
+  - job_name: 'bbb_node_exporter'
+    params:
+      format: [prometheus]
+    honor_labels: true
+    relabel_configs:
+      - source_labels: ['__address__']
+        separator:     ':'
+        regex:         '(.*):.*'
+        target_label:  'instance'
+        replacement:   '$1'
+    static_configs:
+      - targets: ['bbb1.bptest.cloud:9100']
+
+#  - job_name: 'bbb_netdata'
+#    relabel_configs:
+#    - source_labels: ['__address__']
+#      separator:     ':'
+#      regex:         '(.*):.*'
+#      target_label:  'instance'
+#      replacement:   '$1'
+#    static_configs:
+#    - targets: ['bbb1.bptest.cloud:19999'] 
+
+  - job_name: 'bbb_netdata'
+    metrics_path: '/netdata/api/v1/allmetrics'
+    params:
+      format: [prometheus]
+    honor_labels: true
+    scheme: https
+    static_configs:
+    - targets: ['bbb1.bptest.cloud']
